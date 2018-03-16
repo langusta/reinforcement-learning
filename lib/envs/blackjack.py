@@ -106,10 +106,14 @@ class BlackjackEnv(gym.Env):
             reward = cmp(score(self.player), score(self.dealer))
             if self.natural and is_natural(self.player) and reward == 1:
                 reward = 1.5
-        return self._get_obs(), reward, done, {}
+        return self._get_obs(done), reward, done, {}
 
-    def _get_obs(self):
-        return (sum_hand(self.player), self.dealer[0], usable_ace(self.player))
+    def _get_obs(self, done):
+        if done:
+            dealer = sum_hand(self.dealer)
+        else:
+            dealer = self.dealer[0]
+        return (sum_hand(self.player), dealer, usable_ace(self.player))
 
     def _reset(self):
         self.dealer = draw_hand(self.np_random)
@@ -119,4 +123,4 @@ class BlackjackEnv(gym.Env):
         while sum_hand(self.player) < 12:
             self.player.append(draw_card(self.np_random))
 
-        return self._get_obs()
+        return self._get_obs(False)
